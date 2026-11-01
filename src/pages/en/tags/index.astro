@@ -1,0 +1,14 @@
+---
+import { getCollection } from "astro:content";
+
+import TagCatalog from "../../../components/TagCatalog.astro";
+import { getAvailableTranslations } from "../../../lib/recipes";
+
+const [originals, translations] = await Promise.all([
+  getCollection("recipes"),
+  getCollection("recipesEn"),
+]);
+const recipes = getAvailableTranslations(originals, translations);
+---
+
+<TagCatalog locale="en" recipes={recipes} />

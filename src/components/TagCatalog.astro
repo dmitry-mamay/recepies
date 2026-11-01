@@ -1,0 +1,48 @@
+---
+import BaseLayout from "../layouts/BaseLayout.astro";
+import { type Locale, localizedPath, messages, tagNames, tagPath } from "../i18n";
+import type { RecipeEntry } from "../lib/recipes";
+import type { RecipeTag } from "../data/recipe-tags";
+
+interface Props {
+  locale: Locale;
+  recipes: RecipeEntry[];
+}
+
+const { locale, recipes } = Astro.props;
+const text = messages[locale];
+const tagCounts = new Map<RecipeTag, number>();
+
+for (const recipe of recipes) {
+  for (const tag of recipe.data.tags) {
+    tagCounts.set(tag, (tagCounts.get(tag) ?? 0) + 1);
+  }
+}
+
+const tags = [...tagCounts.entries()].sort(([first], [second]) =>
+  tagNames[locale][first].localeCompare(tagNames[locale][second], locale),
+);
+---
+
+<BaseLayout
+  title={text.tagListTitle}
+  description={text.tagListDescription}
+  locale={locale}
+  alternatePath={localizedPath("/tags/", locale === "ru" ? "en" : "ru")}
+>
+  <header class="page-intro">
+    <p class="eyebrow">{text.navigationLabel}</p>
+    <h1>{text.tagListTitle}</h1>
+    <p>{text.tagListIntro}</p>
+  </header>
+  <section class="tag-cloud" aria-label={text.tagList}>
+    {
+      tags.map(([tag, count]) => (
+        <a href={tagPath(tag, locale)}>
+          <span>{tagNames[locale][tag]}</span>
+          <small>{count}</small>
+        </a>
+      ))
+    }
+  </section>
+</BaseLayout>

@@ -1,0 +1,44 @@
+---
+import RecipeCard from "./RecipeCard.astro";
+import BaseLayout from "../layouts/BaseLayout.astro";
+import type { RecipeTag } from "../data/recipe-tags";
+import { type Locale, messages, tagNames, tagPath } from "../i18n";
+import type { RecipeEntry } from "../lib/recipes";
+
+interface Props {
+  locale: Locale;
+  tag: RecipeTag;
+  recipes: RecipeEntry[];
+  hasTranslation: boolean;
+}
+
+const { locale, tag, recipes, hasTranslation } = Astro.props;
+const text = messages[locale];
+const tagTitle = tagNames[locale][tag];
+---
+
+<BaseLayout
+  title={`${text.recipes}: ${tagTitle}`}
+  description={
+    locale === "en"
+      ? `Recipes tagged "${tagTitle}".`
+      : `Подборка рецептов по тегу «${tagTitle}».`
+  }
+  locale={locale}
+  alternatePath={
+    hasTranslation
+      ? tagPath(tag, locale === "ru" ? "en" : "ru")
+      : undefined
+  }
+>
+  <header class="page-intro">
+    <p class="eyebrow">{text.collection}</p>
+    <h1>{tagTitle}</h1>
+    <p>{text.recipeCount} {recipes.length}</p>
+  </header>
+  <section class="listing-section" aria-label={`${text.recipes}: ${tagTitle}`}>
+    <div class="recipe-grid">
+      {recipes.map((recipe) => <RecipeCard recipe={recipe} locale={locale} />)}
+    </div>
+  </section>
+</BaseLayout>

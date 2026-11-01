@@ -1,0 +1,86 @@
+---
+import "../styles/global.css";
+import { type Locale, localizedPath, messages } from "../i18n";
+
+interface Props {
+  title: string;
+  description: string;
+  locale: Locale;
+  alternatePath?: string;
+  image?: string;
+  type?: "website" | "article";
+}
+
+const {
+  title,
+  description,
+  locale,
+  alternatePath,
+  image,
+  type = "website",
+} = Astro.props;
+const text = messages[locale];
+const siteName = text.siteName;
+const pageTitle = title === siteName ? title : `${title} — ${siteName}`;
+const siteUrl = Astro.site ?? Astro.url;
+const canonicalUrl = new URL(Astro.url.pathname, siteUrl);
+const socialImage = image ? new URL(image, siteUrl) : undefined;
+const ruPath = locale === "ru" ? Astro.url.pathname : alternatePath ?? "/";
+const enPath = locale === "en" ? Astro.url.pathname : alternatePath ?? "/en/";
+---
+
+<!doctype html>
+<html lang={locale}>
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width" />
+    <meta name="generator" content={Astro.generator} />
+    <meta name="description" content={description} />
+    <link rel="icon" type="image/svg+xml" href="/favicon.svg" />
+    <link rel="canonical" href={canonicalUrl} />
+    {
+      alternatePath && (
+        <>
+          <link rel="alternate" hreflang="ru" href={new URL(ruPath, siteUrl)} />
+          <link rel="alternate" hreflang="en" href={new URL(enPath, siteUrl)} />
+        </>
+      )
+    }
+    <meta property="og:locale" content={locale === "en" ? "en_US" : "ru_RU"} />
+    <meta property="og:type" content={type} />
+    <meta property="og:site_name" content={siteName} />
+    <meta property="og:title" content={pageTitle} />
+    <meta property="og:description" content={description} />
+    <meta property="og:url" content={canonicalUrl} />
+    {socialImage && <meta property="og:image" content={socialImage} />}
+    <meta name="twitter:card" content={socialImage ? "summary_large_image" : "summary"} />
+    <title>{pageTitle}</title>
+    <slot name="head" />
+  </head>
+  <body>
+    <a class="skip-link" href="#main-content">{text.skip}</a>
+    <header class="site-header">
+      <a class="site-brand" href={localizedPath("/", locale)} aria-label={text.home}>
+        <svg viewBox="0 0 32 32" aria-hidden="true">
+          <path d="M7 5h18v5c0 6-3.5 10.5-8 12v4h6v2H9v-2h6v-4c-4.5-1.5-8-6-8-12V5Zm3 3v2c0 4.5 2.4 8 6 9.3 3.6-1.3 6-4.8 6-9.3V8H10Z"></path>
+        </svg>
+        <span>{siteName}</span>
+      </a>
+      <div class="site-header__links">
+        <nav aria-label={text.navigation}>
+          <a href={localizedPath("/", locale)}>{text.recipes}</a>
+          <a href={localizedPath("/tags/", locale)}>{text.tags}</a>
+        </nav>
+        <nav class="language-switch" aria-label={text.language}>
+          <a href={ruPath} lang="ru" aria-current={locale === "ru" ? "page" : undefined}>RU</a>
+          <a href={enPath} lang="en" aria-current={locale === "en" ? "page" : undefined}>EN</a>
+        </nav>
+      </div>
+    </header>
+    <main id="main-content">
+      <slot />
+    </main>
+    <footer class="site-footer">
+    </footer>
+  </body>
+</html>

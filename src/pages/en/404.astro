@@ -1,0 +1,19 @@
+---
+import BaseLayout from "../../layouts/BaseLayout.astro";
+import { messages } from "../../i18n";
+
+const text = messages.en;
+---
+
+<BaseLayout
+  title={text.notFoundTitle}
+  description={text.notFoundDescription}
+  locale="en"
+>
+  <section class="not-found">
+    <p class="eyebrow">{text.notFoundLabel}</p>
+    <h1>{text.notFoundHeading}</h1>
+    <p>{text.notFoundIntro}</p>
+    <a class="button" href="/en/">{text.backToRecipes}</a>
+  </section>
+</BaseLayout>

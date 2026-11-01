@@ -1,0 +1,46 @@
+---
+import { Image } from "astro:assets";
+
+import { type Locale, messages } from "../i18n";
+import type { RecipeEntry } from "../lib/recipes";
+
+interface Props {
+  steps: RecipeEntry["data"]["steps"];
+  locale: Locale;
+}
+
+const { steps, locale } = Astro.props;
+---
+
+<section class="recipe-section steps-section" aria-labelledby="steps-title">
+  <div class="section-heading">
+    <h2 id="steps-title">{messages[locale].steps}</h2>
+  </div>
+  <ol class="steps-grid">
+    {
+      steps.map((step, index) => (
+        <li class:list={["step-card", { "step-card--without-image": !step.image }]}>
+          {
+            step.image && (
+              <Image
+                class="step-card__image"
+                src={step.image}
+                alt={step.imageAlt ?? ""}
+                loading="lazy"
+              />
+            )
+          }
+          <div class="step-card__body">
+            <div class="step-card__heading">
+              <span class="step-card__number" aria-hidden="true">
+                {index + 1}
+              </span>
+              <h3>{step.title}</h3>
+            </div>
+            <p>{step.text}</p>
+          </div>
+        </li>
+      ))
+    }
+  </ol>
+</section>

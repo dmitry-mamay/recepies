@@ -1,0 +1,39 @@
+---
+import { getCollection, type CollectionEntry } from "astro:content";
+
+import TaggedRecipes from "../../components/TaggedRecipes.astro";
+import type { RecipeTag } from "../../data/recipe-tags";
+import { getAvailableTranslations } from "../../lib/recipes";
+
+export async function getStaticPaths() {
+  const [recipes, translations] = await Promise.all([
+    getCollection("recipes"),
+    getCollection("recipesEn"),
+  ]);
+  const translatedTags = new Set(
+    getAvailableTranslations(recipes, translations).flatMap(
+      (recipe) => recipe.data.tags,
+    ),
+  );
+  const tags = [...new Set(recipes.flatMap((recipe) => recipe.data.tags))];
+
+  return tags.map((tag) => ({
+    params: { tag },
+    props: {
+      tag,
+      recipes: recipes.filter((recipe) => recipe.data.tags.includes(tag)),
+      hasTranslation: translatedTags.has(tag),
+    },
+  }));
+}
+
+interface Props {
+  tag: RecipeTag;
+  recipes: CollectionEntry<"recipes">[];
+  hasTranslation: boolean;
+}
+
+const { tag, recipes, hasTranslation } = Astro.props;
+---
+
+<TaggedRecipes locale="ru" tag={tag} recipes={recipes} hasTranslation={hasTranslation} />

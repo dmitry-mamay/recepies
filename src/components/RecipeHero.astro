@@ -1,0 +1,32 @@
+---
+import { Image } from "astro:assets";
+
+import type { RecipeEntry } from "../lib/recipes";
+
+interface Props {
+  recipe: RecipeEntry["data"];
+}
+
+const { recipe } = Astro.props;
+---
+
+<header class:list={["recipe-hero", { "recipe-hero--without-image": !recipe.image }]}>
+  {
+    recipe.image && (
+      <div class="recipe-hero__image">
+        <Image
+          src={recipe.image}
+          alt={recipe.imageAlt ?? ""}
+          loading="eager"
+          fetchpriority="high"
+        />
+      </div>
+    )
+  }
+  <div class="recipe-hero__content">
+    {recipe.label && <p class="eyebrow">{recipe.label}</p>}
+    <h1>{recipe.title}</h1>
+    {recipe.subtitle && <p class="recipe-hero__subtitle">{recipe.subtitle}</p>}
+    <p class="recipe-hero__description">{recipe.description}</p>
+  </div>
+</header>

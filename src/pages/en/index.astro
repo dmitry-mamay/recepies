@@ -1,0 +1,14 @@
+---
+import { getCollection } from "astro:content";
+
+import RecipeCatalog from "../../components/RecipeCatalog.astro";
+import { getAvailableTranslations } from "../../lib/recipes";
+
+const [originals, translations] = await Promise.all([
+  getCollection("recipes"),
+  getCollection("recipesEn"),
+]);
+const recipes = getAvailableTranslations(originals, translations);
+---
+
+<RecipeCatalog locale="en" recipes={recipes} />

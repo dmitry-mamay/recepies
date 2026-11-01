@@ -1,0 +1,23 @@
+---
+import { type Locale, messages } from "../i18n";
+
+interface Props {
+  tips: string[];
+  locale: Locale;
+}
+
+const { tips, locale } = Astro.props;
+---
+
+<aside class="recipe-tips" aria-labelledby="tips-title">
+  <div class="recipe-tips__title">
+    <svg viewBox="0 0 32 32" aria-hidden="true">
+      <path d="M8 12V8h4V5h8v3h4v4h3v8h-6v7H11v-7H5v-8h3Z"></path>
+      <path d="M13 12v5M19 12v5M13 23h6"></path>
+    </svg>
+    <h2 id="tips-title">{messages[locale].tips}</h2>
+  </div>
+  <ul>
+    {tips.map((tip) => <li>{tip}</li>)}
+  </ul>
+</aside>

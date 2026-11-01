@@ -1,0 +1,47 @@
+---
+import { Image } from "astro:assets";
+
+import { type Locale, messages, tagNames } from "../i18n";
+import type { RecipeEntry } from "../lib/recipes";
+import { formatMinutes, getRecipeUrl } from "../lib/recipes";
+
+interface Props {
+  recipe: RecipeEntry;
+  locale: Locale;
+}
+
+const { recipe, locale } = Astro.props;
+const totalMinutes =
+  (recipe.data.prepMinutes ?? 0) +
+  (recipe.data.cookMinutesMax ?? recipe.data.cookMinutes ?? 0) +
+  (recipe.data.restMinutes ?? 0);
+---
+
+<article class:list={["recipe-card", { "recipe-card--without-image": !recipe.data.image }]}>
+  {
+    recipe.data.image && (
+      <a class="recipe-card__image" href={getRecipeUrl(recipe, locale)} tabindex="-1" aria-hidden="true">
+        <Image src={recipe.data.image} alt="" loading="lazy" />
+      </a>
+    )
+  }
+  <div class="recipe-card__body">
+    <ul class="tag-list" aria-label={messages[locale].recipeTags}>
+      {recipe.data.tags.slice(0, 2).map((tag) => <li>{tagNames[locale][tag]}</li>)}
+    </ul>
+    <h2><a href={getRecipeUrl(recipe, locale)}>{recipe.data.title}</a></h2>
+    {recipe.data.subtitle && <p class="recipe-card__subtitle">{recipe.data.subtitle}</p>}
+    <p>{recipe.data.description}</p>
+    {
+      totalMinutes > 0 && (
+        <p class="recipe-card__time">
+          <svg viewBox="0 0 24 24" aria-hidden="true">
+            <circle cx="12" cy="13" r="8"></circle>
+            <path d="M12 9v4l3 2M9 3h6"></path>
+          </svg>
+          {formatMinutes(totalMinutes, locale)}
+        </p>
+      )
+    }
+  </div>
+</article>

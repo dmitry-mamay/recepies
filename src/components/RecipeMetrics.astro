@@ -1,0 +1,71 @@
+---
+import { type Locale, messages } from "../i18n";
+import type { RecipeEntry } from "../lib/recipes";
+import { formatMinuteRange, formatMinutes, formatYield } from "../lib/recipes";
+
+interface Props {
+  recipe: RecipeEntry["data"];
+  locale: Locale;
+}
+
+const { recipe, locale } = Astro.props;
+const text = messages[locale];
+const hasPrep = recipe.prepMinutes !== undefined && recipe.prepMinutes > 0;
+const hasCook = recipe.cookMinutes !== undefined && recipe.cookMinutes > 0;
+const hasRest = recipe.restMinutes !== undefined && recipe.restMinutes > 0;
+const restLabel = recipe.restLabel ?? text.cooling;
+const processLabel =
+  hasCook && hasRest
+    ? `${text.cookingAnd} ${restLabel.toLocaleLowerCase(locale)}`
+    : hasRest
+      ? restLabel
+      : text.cooking;
+const processParts = [
+  hasCook
+    ? formatMinuteRange(recipe.cookMinutes!, locale, recipe.cookMinutesMax)
+    : undefined,
+  hasRest ? formatMinutes(recipe.restMinutes!, locale) : undefined,
+].filter(Boolean);
+---
+
+<dl class="recipe-metrics" aria-label={text.recipeDetails}>
+  {
+    hasPrep && (
+      <div class="recipe-metric">
+        <svg viewBox="0 0 32 32" aria-hidden="true">
+          <circle cx="16" cy="17" r="11"></circle>
+          <path d="M16 10v7l5 3M12 3h8"></path>
+        </svg>
+        <div>
+          <dt>{text.preparation}</dt>
+          <dd>{formatMinutes(recipe.prepMinutes!, locale)}</dd>
+        </div>
+      </div>
+    )
+  }
+  {
+    (hasCook || hasRest) && (
+      <div class="recipe-metric">
+        <svg viewBox="0 0 32 32" aria-hidden="true">
+          <path d="M7 10h18v17H7zM11 10V7h10v3M4 14h3M25 14h3"></path>
+          <path d="M16 15v5l3 2"></path>
+        </svg>
+        <div>
+          <dt>{processLabel}</dt>
+          <dd>{processParts.join(" + ")}</dd>
+          {hasRest && recipe.restNote && <small>{recipe.restNote}</small>}
+        </div>
+      </div>
+    )
+  }
+  <div class="recipe-metric">
+    <svg viewBox="0 0 32 32" aria-hidden="true">
+      <circle cx="16" cy="10" r="5"></circle>
+      <path d="M6 28c0-7 4-11 10-11s10 4 10 11M9 18l-4 4M23 18l4 4"></path>
+    </svg>
+    <div>
+      <dt>{text.servings}</dt>
+      <dd>{formatYield(recipe.servings, locale)}</dd>
+    </div>
+  </div>
+</dl>

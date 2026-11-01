@@ -1,0 +1,51 @@
+---
+import { Image } from "astro:assets";
+
+import { type Locale, messages } from "../i18n";
+import type { RecipeEntry } from "../lib/recipes";
+
+interface Props {
+  recipe: RecipeEntry["data"];
+  locale: Locale;
+}
+
+const { recipe, locale } = Astro.props;
+const text = messages[locale];
+---
+
+<section class="recipe-section ingredients-section" aria-labelledby="ingredients-title">
+  <div class="section-heading">
+    <h2 id="ingredients-title">{text.ingredients}</h2>
+    {recipe.servings.note && <p>{text.calculatedFor} {recipe.servings.note}</p>}
+  </div>
+  <div class:list={["ingredients-layout", { "ingredients-layout--without-image": !recipe.ingredientsImage }]}>
+    <div class="ingredient-groups">
+      {
+        recipe.ingredients.map((group) => (
+          <section class="ingredient-group">
+            {group.title && <h3>{group.title}</h3>}
+            <ul>
+              {group.items.map((ingredient) => (
+                <li>
+                  {ingredient.amount && <strong>{ingredient.amount}</strong>}{" "}
+                  <span>{ingredient.item}</span>
+                  {ingredient.note && <small>{ingredient.note}</small>}
+                </li>
+              ))}
+            </ul>
+          </section>
+        ))
+      }
+    </div>
+    {
+      recipe.ingredientsImage && (
+        <Image
+          class="ingredients-image"
+          src={recipe.ingredientsImage}
+          alt={recipe.ingredientsImageAlt ?? ""}
+          loading="lazy"
+        />
+      )
+    }
+  </div>
+</section>

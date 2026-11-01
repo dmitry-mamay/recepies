@@ -1,0 +1,36 @@
+---
+import type { CollectionEntry } from "astro:content";
+
+import RecipeCard from "./RecipeCard.astro";
+import BaseLayout from "../layouts/BaseLayout.astro";
+import { type Locale, localizedPath, messages } from "../i18n";
+
+interface Props {
+  locale: Locale;
+  recipes: CollectionEntry<"recipes">[] | CollectionEntry<"recipesEn">[];
+}
+
+const { locale, recipes } = Astro.props;
+const text = messages[locale];
+const sortedRecipes = [...recipes].sort((first, second) =>
+  first.data.title.localeCompare(second.data.title, locale),
+);
+---
+
+<BaseLayout
+  title={text.catalogTitle}
+  description={text.catalogDescription}
+  locale={locale}
+  alternatePath={localizedPath("/", locale === "ru" ? "en" : "ru")}
+>
+  <header class="page-intro">
+    <p class="eyebrow">{text.catalogLabel}</p>
+    <h1>{text.catalogTitle}</h1>
+    <p>{text.catalogIntro}</p>
+  </header>
+  <section class="listing-section" aria-label={text.recipeList}>
+    <div class="recipe-grid">
+      {sortedRecipes.map((recipe) => <RecipeCard recipe={recipe} locale={locale} />)}
+    </div>
+  </section>
+</BaseLayout>

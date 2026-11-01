@@ -1,0 +1,119 @@
+---
+import { render } from "astro:content";
+
+import RecipeHero from "./RecipeHero.astro";
+import RecipeIngredients from "./RecipeIngredients.astro";
+import RecipeMetrics from "./RecipeMetrics.astro";
+import RecipeSteps from "./RecipeSteps.astro";
+import RecipeTips from "./RecipeTips.astro";
+import BaseLayout from "../layouts/BaseLayout.astro";
+import { type Locale, messages, tagNames, tagPath } from "../i18n";
+import {
+  type RecipeEntry,
+  formatYield,
+  ingredientToText,
+  minutesToIso,
+} from "../lib/recipes";
+
+interface Props {
+  recipe: RecipeEntry;
+  locale: Locale;
+  alternatePath?: string;
+}
+
+const { recipe, locale, alternatePath } = Astro.props;
+const { Content } = await render(recipe);
+const { data } = recipe;
+const text = messages[locale];
+const hasBody = (recipe.body ?? "").trim().length > 0;
+const cookMinutesForStructuredData =
+  data.cookMinutesMax ?? data.cookMinutes ?? 0;
+const totalMinutes =
+  (data.prepMinutes ?? 0) +
+  cookMinutesForStructuredData +
+  (data.restMinutes ?? 0);
+const siteUrl = Astro.site ?? Astro.url;
+const absoluteImage = (image: { src: string } | undefined) =>
+  image ? new URL(image.src, siteUrl).href : undefined;
+
+const recipeJsonLd = {
+  "@context": "https://schema.org",
+  "@type": "Recipe",
+  inLanguage: locale,
+  name: data.title,
+  description: data.description,
+  url: new URL(Astro.url.pathname, siteUrl).href,
+  image: data.image ? [absoluteImage(data.image)] : undefined,
+  keywords: data.tags.map((tag) => tagNames[locale][tag]).join(", "),
+  recipeYield: formatYield(data.servings, locale),
+  prepTime:
+    data.prepMinutes !== undefined
+      ? minutesToIso(data.prepMinutes)
+      : undefined,
+  cookTime:
+    data.cookMinutes !== undefined
+      ? minutesToIso(cookMinutesForStructuredData)
+      : undefined,
+  totalTime: totalMinutes > 0 ? minutesToIso(totalMinutes) : undefined,
+  recipeIngredient: data.ingredients.flatMap((group) =>
+    group.items.map(ingredientToText),
+  ),
+  recipeInstructions: data.steps.map((step) => ({
+    "@type": "HowToStep",
+    name: step.title,
+    text: step.text,
+    image: absoluteImage(step.image),
+  })),
+};
+---
+
+<BaseLayout
+  title={data.title}
+  description={data.description}
+  image={data.image?.src}
+  type="article"
+  locale={locale}
+  alternatePath={alternatePath}
+>
+  <script
+    slot="head"
+    type="application/ld+json"
+    set:html={JSON.stringify(recipeJsonLd)}
+  />
+
+  <article class="recipe-page">
+    <RecipeHero recipe={data} />
+    <RecipeMetrics recipe={data} locale={locale} />
+    <RecipeIngredients recipe={data} locale={locale} />
+    <RecipeSteps steps={data.steps} locale={locale} />
+
+    {
+      data.tips && (
+        <div class="recipe-aftercare recipe-aftercare--single">
+          <RecipeTips tips={data.tips} locale={locale} />
+        </div>
+      )
+    }
+    {hasBody && <Content />}
+
+    <footer class="recipe-footer">
+      <div>
+        <h2>{text.tags}</h2>
+        <ul class="tag-list">
+          {
+            data.tags.map((tag) => (
+              <li><a href={tagPath(tag, locale)}>{tagNames[locale][tag]}</a></li>
+            ))
+          }
+        </ul>
+      </div>
+      {
+        data.source && (
+          <p>
+            {text.source} <a href={data.source} rel="noreferrer">{text.original}</a>
+          </p>
+        )
+      }
+    </footer>
+  </article>
+</BaseLayout>

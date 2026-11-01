@@ -1,0 +1,9 @@
+---
+import { getCollection } from "astro:content";
+
+import TagCatalog from "../../components/TagCatalog.astro";
+
+const recipes = await getCollection("recipes");
+---
+
+<TagCatalog locale="ru" recipes={recipes} />
