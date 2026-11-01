@@ -7,7 +7,13 @@ import RecipeMetrics from "./RecipeMetrics.astro";
 import RecipeSteps from "./RecipeSteps.astro";
 import RecipeTips from "./RecipeTips.astro";
 import BaseLayout from "../layouts/BaseLayout.astro";
-import { type Locale, messages, tagNames, tagPath } from "../i18n";
+import {
+  type Locale,
+  messages,
+  tagNames,
+  tagPath,
+  withBasePath,
+} from "../i18n";
 import {
   type RecipeEntry,
   formatYield,
@@ -34,7 +40,7 @@ const totalMinutes =
   (data.restMinutes ?? 0);
 const siteUrl = Astro.site ?? Astro.url;
 const absoluteImage = (image: { src: string } | undefined) =>
-  image ? new URL(image.src, siteUrl).href : undefined;
+  image ? new URL(withBasePath(image.src), siteUrl).href : undefined;
 
 const recipeJsonLd = {
   "@context": "https://schema.org",
@@ -42,7 +48,7 @@ const recipeJsonLd = {
   inLanguage: locale,
   name: data.title,
   description: data.description,
-  url: new URL(Astro.url.pathname, siteUrl).href,
+  url: new URL(withBasePath(Astro.url.pathname), siteUrl).href,
   image: data.image ? [absoluteImage(data.image)] : undefined,
   keywords: data.tags.map((tag) => tagNames[locale][tag]).join(", "),
   recipeYield: formatYield(data.servings, locale),

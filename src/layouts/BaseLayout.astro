@@ -1,6 +1,11 @@
 ---
 import "../styles/global.css";
-import { type Locale, localizedPath, messages } from "../i18n";
+import {
+  type Locale,
+  localizedPath,
+  messages,
+  withBasePath,
+} from "../i18n";
 
 interface Props {
   title: string;
@@ -23,10 +28,18 @@ const text = messages[locale];
 const siteName = text.siteName;
 const pageTitle = title === siteName ? title : `${title} — ${siteName}`;
 const siteUrl = Astro.site ?? Astro.url;
-const canonicalUrl = new URL(Astro.url.pathname, siteUrl);
-const socialImage = image ? new URL(image, siteUrl) : undefined;
-const ruPath = locale === "ru" ? Astro.url.pathname : alternatePath ?? "/";
-const enPath = locale === "en" ? Astro.url.pathname : alternatePath ?? "/en/";
+const canonicalUrl = new URL(withBasePath(Astro.url.pathname), siteUrl);
+const socialImage = image
+  ? new URL(withBasePath(image), siteUrl)
+  : undefined;
+const ruPath =
+  locale === "ru"
+    ? withBasePath(Astro.url.pathname)
+    : alternatePath ?? withBasePath("/");
+const enPath =
+  locale === "en"
+    ? withBasePath(Astro.url.pathname)
+    : alternatePath ?? withBasePath("/en/");
 ---
 
 <!doctype html>
@@ -36,7 +49,7 @@ const enPath = locale === "en" ? Astro.url.pathname : alternatePath ?? "/en/";
     <meta name="viewport" content="width=device-width" />
     <meta name="generator" content={Astro.generator} />
     <meta name="description" content={description} />
-    <link rel="icon" type="image/svg+xml" href="/favicon.svg" />
+    <link rel="icon" type="image/svg+xml" href={withBasePath("/favicon.svg")} />
     <link rel="canonical" href={canonicalUrl} />
     {
       alternatePath && (

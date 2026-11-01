@@ -37,6 +37,18 @@ $env:SITE_URL = "https://recipes.example.com"
 npm run build
 ```
 
+## Deploying on GitHub Pages
+
+The GitHub Actions workflow builds and deploys this repository to
+`https://dmitry-mamay.github.io/recepies/` when changes are pushed to `main`.
+To enable deployment, open **Settings → Pages** and set **Source** to
+**GitHub Actions**. The workflow can also be started manually from the Actions
+tab.
+
+The Astro `base` is set to `/recepies/` for this project site. If deploying to
+a custom domain or a user/organization site instead, update `base` in
+`astro.config.mjs` accordingly.
+
 ## Adding a recipe
 
 1. Copy `src/content/recipes/_template/` to `src/content/recipes/<slug>/`.
