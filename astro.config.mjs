@@ -3,6 +3,7 @@ import sitemap from "@astrojs/sitemap";
 
 export default defineConfig({
   site: process.env.SITE_URL ?? "http://localhost:4321",
+  base: "/recepies/",
   integrations: [
     sitemap({ filter: (page) => !new URL(page).pathname.endsWith("/404/") }),
   ],

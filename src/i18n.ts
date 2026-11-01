@@ -124,8 +124,23 @@ export const tagNames: Record<Locale, Record<RecipeTag, string>> = {
   },
 };
 
+export function withBasePath(path: string): string {
+  const base = import.meta.env.BASE_URL.replace(/\/$/, "");
+  const normalizedPath = path.startsWith("/") ? path : `/${path}`;
+
+  if (
+    !base ||
+    normalizedPath === base ||
+    normalizedPath.startsWith(`${base}/`)
+  ) {
+    return normalizedPath;
+  }
+
+  return `${base}${normalizedPath}`;
+}
+
 export function localizedPath(path: string, locale: Locale): string {
-  return locale === "en" ? `/en${path}` : path;
+  return withBasePath(locale === "en" ? `/en${path}` : path);
 }
 
 export function tagPath(tag: RecipeTag, locale: Locale): string {
