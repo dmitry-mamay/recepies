@@ -5,24 +5,32 @@
 - Create a directory at `src/content/recipes/<slug>/`.
 - Use `src/content/recipes/_template/index.md` as the starting point.
 - Keep Russian frontmatter and any additional Markdown notes in `index.md`.
-- If an English translation is available, put its frontmatter and notes in
-  `index.en.md` next to `index.md`. Translate all visible content and alt text,
-  preserve quantities and times, and reuse the recipe's `images/` files.
-- Do not create an English file with partial or untranslated content. Recipes
-  without `index.en.md` must remain absent from English listings and routes.
+- Always create `index.en.md` next to `index.md` by translating the Russian
+  recipe in full. Translate all visible content, including ingredient groups,
+  step titles and text, tips, notes, and image alt text. Preserve meaning,
+  quantities, temperatures, and times; use the same valid tag IDs in both
+  languages.
+- Do not create a partial or untranslated English file. Every recipe must have
+  an English version and appear in English listings and routes.
 - Do not add unknown fields: the collection schema is strict.
 - Use only tag IDs defined in `src/data/recipe-tags.ts` in both languages;
   labels and interface text are defined in `src/i18n.ts`.
 
 ## Images
 
+- Copy every image supplied for the recipe from its intake folder into the
+  recipe's `images/` subdirectory. Do not copy images that belong to another
+  recipe.
+- Reference the copied files in both language files wherever appropriate, using
+  nonempty, translated alt text for every image reference.
 - Use only files that actually exist in the recipe's `images/` subdirectory.
 - Never invent image paths or use external URLs as images.
 - Do not specify an image field until the corresponding file exists.
 - Provide nonempty alt text for every specified image.
-- If a step has no photo, omit its `image` field and leave a TODO note in the PR description.
-- A recipe may have no photos; do not add placeholders unless explicitly requested.
-- Add images manually to `src/content/recipes/<slug>/images/`.
+- If no images are supplied for a recipe, do not add placeholders or image
+  references; note the missing assets in the PR description.
+- If a step has no corresponding photo, omit its `image` field and note it in
+  the PR description.
 
 Recommended file specifications:
 
